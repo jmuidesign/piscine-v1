@@ -1,0 +1,13 @@
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.28;
+
+interface IPiscineV1Exchange {
+    error OnlyOwner();
+    error SameToken();
+    error AddressZero();
+    error PoolAlreadyExists();
+
+    event PoolCreated(address pool, address token0, address token1);
+
+    function createPool(address tokenA, address tokenB) external returns (address pool);
+}
