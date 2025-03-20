@@ -19,7 +19,7 @@ contract PiscineV1Exchange is IPiscineV1Exchange {
         _;
     }
 
-    function createPool(address tokenA, address tokenB) external returns (address pool) {
+    function createPool(address tokenA, address tokenB) public returns (address pool) {
         if (tokenA == tokenB) revert SameToken();
         if (tokenA == address(0) || tokenB == address(0)) revert AddressZero();
 
@@ -36,5 +36,24 @@ contract PiscineV1Exchange is IPiscineV1Exchange {
         emit PoolCreated(poolAddress, token0, token1);
 
         return poolAddress;
+    }
+
+    function addLiquidity(address tokenA, address tokenB, uint256 amountA, uint256 amountB) external {
+        if (tokenA == tokenB) revert SameToken();
+        if (tokenA == address(0) || tokenB == address(0)) revert AddressZero();
+        if (amountA == 0 || amountB == 0) revert AmountZero();
+
+        (address token0, address token1, uint256 amount0, uint256 amount1) =
+            PiscineV1Library.sortTokensAndAmounts(tokenA, tokenB, amountA, amountB);
+        address computedPoolAddress = PiscineV1Library.getPoolAddress(tokenA, tokenB, address(this));
+
+        if (token0ToToken1ToPool[token0][token1] == address(0)) {
+            address newPool = createPool(tokenA, tokenB);
+            PiscineV1Pool(newPool).addLiquidity(amount0, amount1, msg.sender);
+        } else {
+            PiscineV1Pool(computedPoolAddress).addLiquidity(amount0, amount1, msg.sender);
+        }
+
+        emit LiquidityAdded(token0, token1, amount0, amount1);
     }
 }
