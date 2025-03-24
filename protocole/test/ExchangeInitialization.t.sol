@@ -4,7 +4,7 @@ pragma solidity ^0.8.13;
 import {Test} from "forge-std/Test.sol";
 import {PiscineV1Exchange} from "../src/contracts/PiscineV1Exchange.sol";
 
-contract PiscineV1ExchangeInitializationTest is Test {
+contract ExchangeInitializationTest is Test {
     PiscineV1Exchange public exchange;
 
     function setUp() public {

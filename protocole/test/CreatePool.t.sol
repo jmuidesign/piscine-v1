@@ -7,7 +7,7 @@ import {PiscineV1Exchange} from "../src/contracts/PiscineV1Exchange.sol";
 import {PiscineV1Pool} from "../src/contracts/PiscineV1Pool.sol";
 import {PiscineV1Library} from "../src/librairies/PiscineV1Library.sol";
 
-contract PiscineV1ExchangeCreatePoolTest is Test {
+contract CreatePoolTest is Test {
     PiscineV1Exchange public exchange;
 
     address public tokenA = makeAddr("tokenA");

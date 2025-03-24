@@ -2,11 +2,19 @@
 pragma solidity 0.8.28;
 
 import {PiscineV1Pool} from "../contracts/PiscineV1Pool.sol";
-import "openzeppelin-contracts/contracts/utils/Create2.sol";
+import {Create2} from "openzeppelin-contracts/contracts/utils/Create2.sol";
 
 library PiscineV1Library {
     function sortTokens(address tokenA, address tokenB) internal pure returns (address, address) {
         return tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
+    }
+
+    function sortTokensAndAmounts(address tokenA, address tokenB, uint256 amountA, uint256 amountB)
+        internal
+        pure
+        returns (address, address, uint256, uint256)
+    {
+        return tokenA < tokenB ? (tokenA, tokenB, amountA, amountB) : (tokenB, tokenA, amountB, amountA);
     }
 
     function getPoolAddress(address tokenA, address tokenB, address exchange) internal pure returns (address) {
