@@ -23,22 +23,18 @@ contract PiscineV1Pool is IPiscineV1Pool, ERC20 {
         IERC20(token0).transferFrom(liquidityProvider, address(this), amount0);
         IERC20(token1).transferFrom(liquidityProvider, address(this), amount1);
 
-        uint256 precision = 1 ** 18;
         uint256 lpTokensToMint;
 
         if (balance0 == 0 && balance1 == 0) {
-            lpTokensToMint = Math.sqrt((amount0 * precision) * (amount1 * precision)) / precision;
+            lpTokensToMint = Math.sqrt(amount0 * amount1);
         } else {
-            uint256 poolRatio = (balance0 * precision) / (balance1 * precision);
-            uint256 inputRatio = (amount0 * precision) / (amount1 * precision);
+            uint256 poolRatio = balance0 / balance1;
+            uint256 inputRatio = amount0 / amount1;
             uint256 margin = poolRatio / 100;
 
             if (inputRatio > poolRatio + margin || inputRatio < poolRatio - margin) revert InvalidRatio();
 
-            lpTokensToMint = Math.min(
-                (amount0 * precision * totalSupply()) / (balance0 * precision),
-                (amount1 * precision * totalSupply()) / (balance1 * precision)
-            ) / precision;
+            lpTokensToMint = Math.min(amount0 * totalSupply() / balance0, amount1 * totalSupply() / balance1);
         }
 
         _mint(liquidityProvider, lpTokensToMint);
