@@ -56,4 +56,21 @@ contract PiscineV1Exchange is IPiscineV1Exchange {
 
         emit LiquidityAdded(token0, token1, amount0, amount1);
     }
+
+    function removeLiquidity(address tokenA, address tokenB, uint256 lpTokensAmount) external {
+        if (tokenA == tokenB) revert SameToken();
+        if (tokenA == address(0) || tokenB == address(0)) revert AddressZero();
+        if (lpTokensAmount == 0) revert AmountZero();
+
+        (address token0, address token1) = PiscineV1Library.sortTokens(tokenA, tokenB);
+        address computedPoolAddress = PiscineV1Library.getPoolAddress(tokenA, tokenB, address(this));
+
+        if (token0ToToken1ToPool[token0][token1] == address(0)) {
+            revert PoolDoesNotExist();
+        } else {
+            PiscineV1Pool(computedPoolAddress).removeLiquidity(lpTokensAmount, msg.sender);
+        }
+
+        emit LiquidityRemoved(token0, token1, lpTokensAmount);
+    }
 }

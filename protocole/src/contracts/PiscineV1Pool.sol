@@ -42,4 +42,17 @@ contract PiscineV1Pool is IPiscineV1Pool, ERC20 {
         balance0 += amount0;
         balance1 += amount1;
     }
+
+    function removeLiquidity(uint256 lpTokensAmount, address liquidityRemover) external {
+        uint256 amount0 = balance0 * lpTokensAmount / totalSupply();
+        uint256 amount1 = balance1 * lpTokensAmount / totalSupply();
+
+        _burn(liquidityRemover, lpTokensAmount);
+
+        balance0 -= amount0;
+        balance1 -= amount1;
+
+        IERC20(token0).transfer(liquidityRemover, amount0);
+        IERC20(token1).transfer(liquidityRemover, amount1);
+    }
 }
