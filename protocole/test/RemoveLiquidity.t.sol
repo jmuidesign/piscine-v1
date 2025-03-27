@@ -7,21 +7,11 @@ import {IPiscineV1Exchange} from "../src/interfaces/IPiscineV1Exchange.sol";
 
 contract RemoveLiquidityTest is BaseTest {
     uint256 public lpTokensBalance;
-    uint256 public balance0;
-    uint256 public balance1;
-    uint256 public balanceA;
-    uint256 public balanceB;
     bool public isTokenAToken0;
 
     function setUp() public override {
         super.setUp();
-
-        exchange.addLiquidity(tokenA, tokenB, amountA, amountB);
-
-        balanceA = tokenAMock.balanceOf(address(this));
-        balanceB = tokenBMock.balanceOf(address(this));
-        balance0 = pool.balance0();
-        balance1 = pool.balance1();
+        setupLiquidityAndBalances();
         lpTokensBalance = pool.balanceOf(address(this));
         isTokenAToken0 = tokenA == token0;
     }
@@ -107,9 +97,11 @@ contract RemoveLiquidityTest is BaseTest {
 
     function test_remove_liquidity_emitsRemoveLiquidityRemoved() public {
         uint256 lpTokensAmount = lpTokensBalance;
+        uint256 _amount0 = balance0 * lpTokensAmount / pool.totalSupply();
+        uint256 _amount1 = balance1 * lpTokensAmount / pool.totalSupply();
 
         vm.expectEmit();
-        emit IPiscineV1Exchange.LiquidityRemoved(token0, token1, lpTokensAmount);
+        emit IPiscineV1Exchange.LiquidityRemoved(token0, token1, _amount0, _amount1);
 
         exchange.removeLiquidity(tokenA, tokenB, lpTokensAmount);
     }

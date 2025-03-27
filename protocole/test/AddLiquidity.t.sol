@@ -18,11 +18,11 @@ contract AddLiquidityTest is BaseTest {
 
         exchange.addLiquidity(tokenA, tokenB, amountA, amountB);
 
-        assertEq(tokenAMock.balanceOf(computedPoolAddress), amountA);
-        assertEq(tokenBMock.balanceOf(computedPoolAddress), amountB);
-        assertEq(pool.balance0(), amount0);
-        assertEq(pool.balance1(), amount1);
-        assertEq(pool.balanceOf(address(this)), expectedLPTokensToMint);
+        assertEq(tokenAMock.balanceOf(computedPoolAddress), amountA, "Tokens A are not transferred");
+        assertEq(tokenBMock.balanceOf(computedPoolAddress), amountB, "Tokens B are not transferred");
+        assertEq(pool.balance0(), amount0, "Balance 0 is not correct");
+        assertEq(pool.balance1(), amount1, "Balance 1 is not correct");
+        assertEq(pool.balanceOf(address(this)), expectedLPTokensToMint, "LP tokens are not minted");
     }
 
     function test_addLiquidity_succeedsWhenPoolExistsWithoutLiquidity() public {
@@ -31,11 +31,11 @@ contract AddLiquidityTest is BaseTest {
         exchange.createPool(tokenA, tokenB);
         exchange.addLiquidity(tokenA, tokenB, amountA, amountB);
 
-        assertEq(tokenAMock.balanceOf(computedPoolAddress), amountA);
-        assertEq(tokenBMock.balanceOf(computedPoolAddress), amountB);
-        assertEq(pool.balance0(), amount0);
-        assertEq(pool.balance1(), amount1);
-        assertEq(pool.balanceOf(address(this)), expectedLPTokensToMint);
+        assertEq(tokenAMock.balanceOf(computedPoolAddress), amountA, "Tokens A are not transferred");
+        assertEq(tokenBMock.balanceOf(computedPoolAddress), amountB, "Tokens B are not transferred");
+        assertEq(pool.balance0(), amount0, "Balance 0 is not correct");
+        assertEq(pool.balance1(), amount1, "Balance 1 is not correct");
+        assertEq(pool.balanceOf(address(this)), expectedLPTokensToMint, "LP tokens are not minted");
     }
 
     function test_addLiquidity_succeedsWhenPoolExistsWithLiquidity() public {
@@ -47,11 +47,13 @@ contract AddLiquidityTest is BaseTest {
 
         exchange.addLiquidity(tokenA, tokenB, amountA, amountB);
 
-        assertEq(tokenAMock.balanceOf(computedPoolAddress), amountA * 2);
-        assertEq(tokenBMock.balanceOf(computedPoolAddress), amountB * 2);
-        assertEq(pool.balance0(), amount0 * 2);
-        assertEq(pool.balance1(), amount1 * 2);
-        assertEq(pool.balanceOf(address(this)), totalSupplyAfterFirstAdd + expectedLPTokensToMint);
+        assertEq(tokenAMock.balanceOf(computedPoolAddress), amountA * 2, "Tokens A are not transferred");
+        assertEq(tokenBMock.balanceOf(computedPoolAddress), amountB * 2, "Tokens B are not transferred");
+        assertEq(pool.balance0(), amount0 * 2, "Balance 0 is not correct");
+        assertEq(pool.balance1(), amount1 * 2, "Balance 1 is not correct");
+        assertEq(
+            pool.balanceOf(address(this)), totalSupplyAfterFirstAdd + expectedLPTokensToMint, "LP tokens are not minted"
+        );
     }
 
     function test_addLiquidity_succeedsWhithMultipleLiquidityProviders() public {
@@ -68,12 +70,12 @@ contract AddLiquidityTest is BaseTest {
         exchange.addLiquidity(tokenA, tokenB, amountA, amountB);
         vm.stopPrank();
 
-        assertEq(tokenAMock.balanceOf(computedPoolAddress), amountA * 2);
-        assertEq(tokenBMock.balanceOf(computedPoolAddress), amountB * 2);
-        assertEq(pool.balance0(), amount0 * 2);
-        assertEq(pool.balance1(), amount1 * 2);
-        assertEq(pool.balanceOf(user1), expectedLPTokensToMintForUser1);
-        assertEq(pool.balanceOf(user2), expectedLPTokensToMintForUser2);
+        assertEq(tokenAMock.balanceOf(computedPoolAddress), amountA * 2, "Tokens A are not transferred");
+        assertEq(tokenBMock.balanceOf(computedPoolAddress), amountB * 2, "Tokens B are not transferred");
+        assertEq(pool.balance0(), amount0 * 2, "Balance 0 is not correct");
+        assertEq(pool.balance1(), amount1 * 2, "Balance 1 is not correct");
+        assertEq(pool.balanceOf(user1), expectedLPTokensToMintForUser1, "LP tokens are not minted");
+        assertEq(pool.balanceOf(user2), expectedLPTokensToMintForUser2, "LP tokens are not minted");
     }
 
     function test_add_liquidity_emitsLiquidityAdded() public {
@@ -123,10 +125,10 @@ contract AddLiquidityTest is BaseTest {
 
         exchange.addLiquidity(tokenA, tokenB, _amountA, _amountB);
 
-        assertEq(tokenAMock.balanceOf(computedPoolAddress), _amountA);
-        assertEq(tokenBMock.balanceOf(computedPoolAddress), _amountB);
-        assertEq(pool.balance0(), _amount0);
-        assertEq(pool.balance1(), _amount1);
-        assertEq(pool.balanceOf(address(this)), expectedLPTokensToMint);
+        assertEq(tokenAMock.balanceOf(computedPoolAddress), _amountA, "Tokens A are not transferred");
+        assertEq(tokenBMock.balanceOf(computedPoolAddress), _amountB, "Tokens B are not transferred");
+        assertEq(pool.balance0(), _amount0, "Balance 0 is not correct");
+        assertEq(pool.balance1(), _amount1, "Balance 1 is not correct");
+        assertEq(pool.balanceOf(address(this)), expectedLPTokensToMint, "LP tokens are not minted");
     }
 }

@@ -31,14 +31,24 @@ contract BaseTest is Test {
     address public user1;
     address public user2;
 
+    uint256 public balanceA;
+    uint256 public balanceB;
+    uint256 public balance0;
+    uint256 public balance1;
+
+    uint256 public balanceAUser1;
+    uint256 public balanceBUser1;
+    uint256 public balanceAUser2;
+    uint256 public balanceBUser2;
+
     function setUp() public virtual {
         tokenAMock = new ERC20Mock();
         tokenBMock = new ERC20Mock();
 
         tokenA = address(tokenAMock);
         tokenB = address(tokenBMock);
-        amountA = 100;
-        amountB = 200;
+        amountA = 10_000_000;
+        amountB = 20_000_000;
 
         (token0, token1, amount0, amount1) = PiscineV1Library.sortTokensAndAmounts(tokenA, tokenB, amountA, amountB);
 
@@ -46,27 +56,41 @@ contract BaseTest is Test {
         computedPoolAddress = PiscineV1Library.getPoolAddress(tokenA, tokenB, address(exchange));
         pool = PiscineV1Pool(computedPoolAddress);
 
-        tokenAMock.mint(address(this), 1000);
-        tokenBMock.mint(address(this), 1000);
-        tokenAMock.approve(computedPoolAddress, 1000);
-        tokenBMock.approve(computedPoolAddress, 1000);
+        tokenAMock.mint(address(this), 100_000_000);
+        tokenBMock.mint(address(this), 100_000_000);
+        tokenAMock.approve(computedPoolAddress, 100_000_000);
+        tokenBMock.approve(computedPoolAddress, 100_000_000);
 
         user1 = address(1);
         user2 = address(2);
 
-        tokenAMock.mint(user1, 1000);
-        tokenBMock.mint(user1, 1000);
-        tokenAMock.mint(user2, 1000);
-        tokenBMock.mint(user2, 1000);
+        tokenAMock.mint(user1, 100_000_000);
+        tokenBMock.mint(user1, 100_000_000);
+        tokenAMock.mint(user2, 100_000_000);
+        tokenBMock.mint(user2, 100_000_000);
 
         vm.startPrank(user1);
-        tokenAMock.approve(computedPoolAddress, 1000);
-        tokenBMock.approve(computedPoolAddress, 1000);
+        tokenAMock.approve(computedPoolAddress, 100_000_000);
+        tokenBMock.approve(computedPoolAddress, 100_000_000);
         vm.stopPrank();
 
         vm.startPrank(user2);
-        tokenAMock.approve(computedPoolAddress, 1000);
-        tokenBMock.approve(computedPoolAddress, 1000);
+        tokenAMock.approve(computedPoolAddress, 100_000_000);
+        tokenBMock.approve(computedPoolAddress, 100_000_000);
         vm.stopPrank();
+    }
+
+    function setupLiquidityAndBalances() internal {
+        exchange.addLiquidity(tokenA, tokenB, amountA, amountB);
+
+        balanceA = tokenAMock.balanceOf(address(this));
+        balanceB = tokenBMock.balanceOf(address(this));
+        balance0 = pool.balance0();
+        balance1 = pool.balance1();
+
+        balanceAUser1 = tokenAMock.balanceOf(user1);
+        balanceBUser1 = tokenBMock.balanceOf(user1);
+        balanceAUser2 = tokenAMock.balanceOf(user2);
+        balanceBUser2 = tokenBMock.balanceOf(user2);
     }
 }
