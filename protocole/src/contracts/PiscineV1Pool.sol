@@ -43,7 +43,10 @@ contract PiscineV1Pool is IPiscineV1Pool, ERC20 {
         balance1 += amount1;
     }
 
-    function removeLiquidity(uint256 lpTokensAmount, address liquidityRemover) external {
+    function removeLiquidity(uint256 lpTokensAmount, address liquidityRemover)
+        external
+        returns (uint256 _amount0, uint256 _amount1)
+    {
         uint256 amount0 = balance0 * lpTokensAmount / totalSupply();
         uint256 amount1 = balance1 * lpTokensAmount / totalSupply();
 
@@ -54,5 +57,32 @@ contract PiscineV1Pool is IPiscineV1Pool, ERC20 {
 
         IERC20(token0).transfer(liquidityRemover, amount0);
         IERC20(token1).transfer(liquidityRemover, amount1);
+
+        return (amount0, amount1);
+    }
+
+    function swapTokens(address tokenIn, uint256 amountIn, address swapper) external returns (uint256 _amountOut) {
+        uint256 amountInWithFee = (amountIn * 997) / 1000;
+        uint256 amountOut;
+
+        if (tokenIn == token0) {
+            amountOut = (balance1 * amountInWithFee) / (balance0 + amountInWithFee);
+
+            balance0 += amountIn;
+            balance1 -= amountOut;
+
+            IERC20(token0).transferFrom(swapper, address(this), amountIn);
+            IERC20(token1).transfer(swapper, amountOut);
+        } else {
+            amountOut = (balance0 * amountInWithFee) / (balance1 + amountInWithFee);
+
+            balance1 += amountIn;
+            balance0 -= amountOut;
+
+            IERC20(token1).transferFrom(swapper, address(this), amountIn);
+            IERC20(token0).transfer(swapper, amountOut);
+        }
+
+        return amountOut;
     }
 }
