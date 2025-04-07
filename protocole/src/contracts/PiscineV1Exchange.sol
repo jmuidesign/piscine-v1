@@ -12,6 +12,7 @@ contract PiscineV1Exchange is IPiscineV1Exchange {
     address public owner;
     address[] public pools;
     mapping(address token0 => mapping(address token1 => address pool)) public token0ToToken1ToPool;
+    mapping(address token => uint256 forwardFees) public tokenToForwardFees;
 
     constructor() {
         owner = msg.sender;
@@ -100,14 +101,26 @@ contract PiscineV1Exchange is IPiscineV1Exchange {
             path[0] = tokenIn;
             path[1] = tokenOut;
 
-            IERC20(tokenIn).transferFrom(msg.sender, address(this), amountIn);
-            IERC20(tokenIn).approve(address(router), amountIn);
+            uint256 amountInWithFee = (amountIn * 999) / 1000;
 
-            amountOut = router.swapExactTokensForTokens(amountIn, 0, path, msg.sender, block.timestamp + 5 minutes)[1];
+            IERC20(tokenIn).transferFrom(msg.sender, address(this), amountIn);
+            IERC20(tokenIn).approve(address(router), amountInWithFee);
+
+            tokenToForwardFees[tokenIn] += (amountIn - amountInWithFee);
+
+            amountOut =
+                router.swapExactTokensForTokens(amountInWithFee, 0, path, msg.sender, block.timestamp + 5 minutes)[1];
         } else {
             amountOut = PiscineV1Pool(computedPoolAddress).swapTokens(tokenIn, amountIn, msg.sender);
         }
 
         emit TokensSwapped(tokenIn, tokenOut, amountIn, amountOut);
+    }
+
+    function withdrawForwardFees(address token, uint256 amount) external onlyOwner {
+        tokenToForwardFees[token] -= amount;
+        IERC20(token).transfer(owner, amount);
+
+        emit ForwardFeesWithdrawn(token, amount);
     }
 }
