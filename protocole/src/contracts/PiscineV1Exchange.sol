@@ -80,7 +80,7 @@ contract PiscineV1Exchange is IPiscineV1Exchange {
         emit LiquidityRemoved(token0, token1, amount0, amount1);
     }
 
-    function swapTokens(address tokenIn, address tokenOut, uint256 amountIn) external returns (uint256 _amountOut) {
+    function swapTokens(address tokenIn, address tokenOut, uint256 amountIn) external {
         if (tokenIn == tokenOut) revert SameToken();
         if (tokenIn == address(0) || tokenOut == address(0)) revert AddressZero();
         if (amountIn == 0) revert AmountZero();
@@ -109,7 +109,5 @@ contract PiscineV1Exchange is IPiscineV1Exchange {
         }
 
         emit TokensSwapped(tokenIn, tokenOut, amountIn, amountOut);
-
-        return amountOut;
     }
 }

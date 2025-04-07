@@ -47,7 +47,9 @@ contract SwapTokensTest is BaseTest {
         uint256 balanceUsdc = IERC20(usdc).balanceOf(address(this));
         uint256 balanceDai = IERC20(dai).balanceOf(address(this));
 
-        uint256 _amountOut = exchange.swapTokens(usdc, dai, amountIn);
+        exchange.swapTokens(usdc, dai, amountIn);
+
+        uint256 _amountOut = IERC20(dai).balanceOf(address(this)) - balanceDai;
 
         assertGt(_amountOut, 0, "amountOut is not correct");
         assertLt(IERC20(usdc).balanceOf(address(this)), balanceUsdc, "balanceUsdc is not correct");
