@@ -87,6 +87,30 @@ app.get('/api/users-addresses', async (c) => {
   }
 })
 
+app.get('/api/liquidity-providers-addresses', async (c) => {
+  try {
+    const poolsLength = await exchange.getPoolsLength()
+    const liquidityProvidersAddresses: string[] = []
+
+    for (let i = 0; i < poolsLength; i++) {
+      const address = await exchange.pools(i)
+      const pool = new ethers.Contract(address, PiscineV1Pool.abi, provider)
+      const poolEvents = await pool.queryFilter('LiquidityAdded')
+
+      for (const event of poolEvents) {
+        const tx = await event.getTransaction()
+
+        if (!liquidityProvidersAddresses.includes(tx.from))
+          liquidityProvidersAddresses.push(tx.from)
+      }
+    }
+
+    return c.json(liquidityProvidersAddresses)
+  } catch (error) {
+    console.error(error)
+  }
+})
+
 serve(
   {
     fetch: app.fetch,
