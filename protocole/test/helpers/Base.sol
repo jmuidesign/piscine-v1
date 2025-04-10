@@ -4,11 +4,11 @@ pragma solidity ^0.8.13;
 import {Test} from "forge-std/Test.sol";
 import {Math} from "openzeppelin-contracts/contracts/utils/math/Math.sol";
 import {ERC20Mock} from "openzeppelin-contracts/contracts/mocks/token/ERC20Mock.sol";
-import {PiscineV1Exchange} from "../src/contracts/PiscineV1Exchange.sol";
-import {PiscineV1Pool} from "../src/contracts/PiscineV1Pool.sol";
-import {PiscineV1Library} from "../src/librairies/PiscineV1Library.sol";
+import {PiscineV1Exchange} from "../../src/contracts/PiscineV1Exchange.sol";
+import {PiscineV1Pool} from "../../src/contracts/PiscineV1Pool.sol";
+import {PiscineV1Library} from "../../src/librairies/PiscineV1Library.sol";
 
-contract BaseTest is Test {
+abstract contract BaseTest is Test {
     using Math for uint256;
 
     ERC20Mock public tokenAMock;
@@ -50,16 +50,16 @@ contract BaseTest is Test {
         amountA = 10_000_000;
         amountB = 20_000_000;
 
-        (token0, token1, amount0, amount1) = PiscineV1Library.sortTokensAndAmounts(tokenA, tokenB, amountA, amountB);
+        (token0, token1, amount0, amount1) = PiscineV1Library._sortTokensAndAmounts(tokenA, tokenB, amountA, amountB);
 
         exchange = new PiscineV1Exchange();
-        computedPoolAddress = PiscineV1Library.getPoolAddress(tokenA, tokenB, address(exchange));
+        computedPoolAddress = PiscineV1Library._getPoolAddress(tokenA, tokenB, address(exchange));
         pool = PiscineV1Pool(computedPoolAddress);
 
         tokenAMock.mint(address(this), 100_000_000);
         tokenBMock.mint(address(this), 100_000_000);
-        tokenAMock.approve(computedPoolAddress, 100_000_000);
-        tokenBMock.approve(computedPoolAddress, 100_000_000);
+        tokenAMock.approve(address(exchange), 100_000_000);
+        tokenBMock.approve(address(exchange), 100_000_000);
 
         user1 = address(1);
         user2 = address(2);
@@ -70,17 +70,17 @@ contract BaseTest is Test {
         tokenBMock.mint(user2, 100_000_000);
 
         vm.startPrank(user1);
-        tokenAMock.approve(computedPoolAddress, 100_000_000);
-        tokenBMock.approve(computedPoolAddress, 100_000_000);
+        tokenAMock.approve(address(exchange), 100_000_000);
+        tokenBMock.approve(address(exchange), 100_000_000);
         vm.stopPrank();
 
         vm.startPrank(user2);
-        tokenAMock.approve(computedPoolAddress, 100_000_000);
-        tokenBMock.approve(computedPoolAddress, 100_000_000);
+        tokenAMock.approve(address(exchange), 100_000_000);
+        tokenBMock.approve(address(exchange), 100_000_000);
         vm.stopPrank();
     }
 
-    function setupLiquidityAndBalances() internal {
+    function _setupLiquidityAndBalances() internal {
         exchange.addLiquidity(tokenA, tokenB, amountA, amountB);
 
         balanceA = tokenAMock.balanceOf(address(this));

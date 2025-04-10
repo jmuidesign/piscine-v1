@@ -2,7 +2,7 @@
 pragma solidity ^0.8.13;
 
 import {Test} from "forge-std/Test.sol";
-import {BaseTest} from "./Base.t.sol";
+import {BaseTest} from "./helpers/Base.sol";
 import {PiscineV1Exchange} from "../src/contracts/PiscineV1Exchange.sol";
 import {IPiscineV1Exchange} from "../src/interfaces/IPiscineV1Exchange.sol";
 import {IERC20} from "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";

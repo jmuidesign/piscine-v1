@@ -5,11 +5,11 @@ import {PiscineV1Pool} from "../contracts/PiscineV1Pool.sol";
 import {Create2} from "openzeppelin-contracts/contracts/utils/Create2.sol";
 
 library PiscineV1Library {
-    function sortTokens(address tokenA, address tokenB) internal pure returns (address, address) {
+    function _sortTokens(address tokenA, address tokenB) internal pure returns (address, address) {
         return tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
     }
 
-    function sortTokensAndAmounts(address tokenA, address tokenB, uint256 amountA, uint256 amountB)
+    function _sortTokensAndAmounts(address tokenA, address tokenB, uint256 amountA, uint256 amountB)
         internal
         pure
         returns (address, address, uint256, uint256)
@@ -17,8 +17,8 @@ library PiscineV1Library {
         return tokenA < tokenB ? (tokenA, tokenB, amountA, amountB) : (tokenB, tokenA, amountB, amountA);
     }
 
-    function getPoolAddress(address tokenA, address tokenB, address exchange) internal pure returns (address) {
-        (address token0, address token1) = sortTokens(tokenA, tokenB);
+    function _getPoolAddress(address tokenA, address tokenB, address exchange) internal pure returns (address) {
+        (address token0, address token1) = _sortTokens(tokenA, tokenB);
 
         bytes32 salt = keccak256(abi.encodePacked(token0, token1));
         bytes memory constructorArgs = abi.encode(token0, token1);
