@@ -2,7 +2,7 @@
 pragma solidity ^0.8.13;
 
 import {Test} from "forge-std/Test.sol";
-import {BaseTest} from "./Base.t.sol";
+import {BaseTest} from "./helpers/Base.sol";
 import {IPiscineV1Exchange} from "../src/interfaces/IPiscineV1Exchange.sol";
 import {IPiscineV1Pool} from "../src/interfaces/IPiscineV1Pool.sol";
 import {PiscineV1Library} from "../src/librairies/PiscineV1Library.sol";
@@ -79,8 +79,10 @@ contract AddLiquidityTest is BaseTest {
     }
 
     function test_add_liquidity_emitsLiquidityAdded() public {
+        uint256 expectedLPTokensToMint = Math.sqrt(amount0 * amount1);
+
         vm.expectEmit();
-        emit IPiscineV1Exchange.LiquidityAdded(token0, token1, amount0, amount1);
+        emit IPiscineV1Pool.LiquidityAdded(amount0, amount1, expectedLPTokensToMint);
 
         exchange.addLiquidity(tokenA, tokenB, amountA, amountB);
     }
@@ -115,11 +117,11 @@ contract AddLiquidityTest is BaseTest {
         tokenAMock.mint(address(this), _amountA);
         tokenBMock.mint(address(this), _amountB);
 
-        tokenAMock.approve(computedPoolAddress, _amountA);
-        tokenBMock.approve(computedPoolAddress, _amountB);
+        tokenAMock.approve(address(exchange), _amountA);
+        tokenBMock.approve(address(exchange), _amountB);
 
         (,, uint256 _amount0, uint256 _amount1) =
-            PiscineV1Library.sortTokensAndAmounts(tokenA, tokenB, _amountA, _amountB);
+            PiscineV1Library._sortTokensAndAmounts(tokenA, tokenB, _amountA, _amountB);
 
         uint256 expectedLPTokensToMint = Math.sqrt(_amount0 * _amount1);
 

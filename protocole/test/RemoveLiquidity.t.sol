@@ -2,8 +2,9 @@
 pragma solidity ^0.8.13;
 
 import {Test} from "forge-std/Test.sol";
-import {BaseTest} from "./Base.t.sol";
+import {BaseTest} from "./helpers/Base.sol";
 import {IPiscineV1Exchange} from "../src/interfaces/IPiscineV1Exchange.sol";
+import {IPiscineV1Pool} from "../src/interfaces/IPiscineV1Pool.sol";
 
 contract RemoveLiquidityTest is BaseTest {
     uint256 public lpTokensBalance;
@@ -11,7 +12,7 @@ contract RemoveLiquidityTest is BaseTest {
 
     function setUp() public override {
         super.setUp();
-        setupLiquidityAndBalances();
+        _setupLiquidityAndBalances();
         lpTokensBalance = pool.balanceOf(address(this));
         isTokenAToken0 = tokenA == token0;
     }
@@ -101,7 +102,7 @@ contract RemoveLiquidityTest is BaseTest {
         uint256 _amount1 = balance1 * lpTokensAmount / pool.totalSupply();
 
         vm.expectEmit();
-        emit IPiscineV1Exchange.LiquidityRemoved(token0, token1, _amount0, _amount1);
+        emit IPiscineV1Pool.LiquidityRemoved(_amount0, _amount1, lpTokensAmount);
 
         exchange.removeLiquidity(tokenA, tokenB, lpTokensAmount);
     }
@@ -116,18 +117,12 @@ contract RemoveLiquidityTest is BaseTest {
         exchange.removeLiquidity(address(0), tokenB, lpTokensBalance);
     }
 
-    function test_removeLiquidity_failsIfAmountZero() public {
-        vm.expectRevert(IPiscineV1Exchange.AmountZero.selector);
-        exchange.removeLiquidity(tokenA, tokenB, 0);
-    }
-
     function test_removeLiquidity_failsIfPoolDoesNotExist() public {
         vm.expectRevert(IPiscineV1Exchange.PoolDoesNotExist.selector);
         exchange.removeLiquidity(makeAddr("tokenC"), makeAddr("tokenD"), lpTokensBalance);
     }
 
     function test_fuzz_removeLiquidity(uint256 lpTokensAmount) public {
-        vm.assume(lpTokensAmount > 0);
         vm.assume(lpTokensAmount <= lpTokensBalance);
 
         exchange.removeLiquidity(tokenA, tokenB, lpTokensAmount);

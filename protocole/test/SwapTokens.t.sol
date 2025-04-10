@@ -2,9 +2,10 @@
 pragma solidity ^0.8.13;
 
 import {Test} from "forge-std/Test.sol";
-import {BaseTest} from "./Base.t.sol";
+import {BaseTest} from "./helpers/Base.sol";
 import {PiscineV1Exchange} from "../src/contracts/PiscineV1Exchange.sol";
 import {IPiscineV1Exchange} from "../src/interfaces/IPiscineV1Exchange.sol";
+import {IPiscineV1Pool} from "../src/interfaces/IPiscineV1Pool.sol";
 import {IERC20} from "openzeppelin-contracts/contracts/interfaces/IERC20.sol";
 
 contract SwapTokensTest is BaseTest {
@@ -15,7 +16,7 @@ contract SwapTokensTest is BaseTest {
 
     function setUp() public override {
         super.setUp();
-        setupLiquidityAndBalances();
+        _setupLiquidityAndBalances();
 
         tokenIn = tokenB;
         tokenOut = tokenA;
@@ -112,7 +113,7 @@ contract SwapTokensTest is BaseTest {
         _calculateAmountOut();
 
         vm.expectEmit();
-        emit IPiscineV1Exchange.TokensSwapped(tokenIn, tokenOut, amountIn, amountOut);
+        emit IPiscineV1Pool.TokensSwapped(amountIn, amountOut);
 
         exchange.swapTokens(tokenIn, tokenOut, amountIn);
     }
@@ -127,17 +128,11 @@ contract SwapTokensTest is BaseTest {
         exchange.swapTokens(address(0), tokenOut, amountIn);
     }
 
-    function test_swap_tokens_failsIfAmountZero() public {
-        vm.expectRevert(IPiscineV1Exchange.AmountZero.selector);
-        exchange.swapTokens(tokenIn, tokenOut, 0);
-    }
-
     function test_fuzz_swapTokens(uint256 _amountIn) public {
-        vm.assume(_amountIn > 0);
         vm.assume(_amountIn <= type(uint128).max);
 
         tokenBMock.mint(address(this), _amountIn);
-        tokenBMock.approve(computedPoolAddress, _amountIn);
+        tokenBMock.approve(address(exchange), _amountIn);
 
         amountIn = _amountIn;
         balance0 = pool.balance0();
