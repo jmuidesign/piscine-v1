@@ -63,6 +63,30 @@ app.get('/api/swaps-number', async (c) => {
     console.error(error)
   }
 })
+
+app.get('/api/users-addresses', async (c) => {
+  try {
+    const poolsLength = await exchange.getPoolsLength()
+    const usersAddresses: string[] = []
+
+    for (let i = 0; i < poolsLength; i++) {
+      const address = await exchange.pools(i)
+      const pool = new ethers.Contract(address, PiscineV1Pool.abi, provider)
+      const poolEvents = await pool.queryFilter('TokensSwapped')
+
+      for (const event of poolEvents) {
+        const tx = await event.getTransaction()
+
+        if (!usersAddresses.includes(tx.from)) usersAddresses.push(tx.from)
+      }
+    }
+
+    return c.json(usersAddresses)
+  } catch (error) {
+    console.error(error)
+  }
+})
+
 serve(
   {
     fetch: app.fetch,
