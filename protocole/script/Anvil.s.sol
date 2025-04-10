@@ -35,6 +35,10 @@ contract Anvil is Script, StdCheats {
         exchange.addLiquidity(address(tokenAMock), address(tokenCMock), 20_000_000, 40_000_000);
         exchange.addLiquidity(address(tokenBMock), address(tokenCMock), 40_000_000, 60_000_000);
 
+        exchange.swapTokens(address(tokenAMock), address(tokenBMock), 2_000_000);
+        exchange.swapTokens(address(tokenAMock), address(tokenCMock), 5_000_000);
+        exchange.swapTokens(address(tokenBMock), address(tokenCMock), 10_000_000);
+
         vm.stopBroadcast();
     }
 }

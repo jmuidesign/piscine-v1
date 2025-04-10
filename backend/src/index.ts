@@ -3,6 +3,7 @@ import { Hono } from 'hono'
 import { ethers } from 'ethers'
 
 import PiscineV1Exchange from '../../protocole/out/PiscineV1Exchange.sol/PiscineV1Exchange.json' assert { type: 'json' }
+import PiscineV1Pool from '../../protocole/out/PiscineV1Pool.sol/PiscineV1Pool.json' assert { type: 'json' }
 import lastDeployment from '../../protocole/broadcast/Anvil.s.sol/1/run-latest.json' assert { type: 'json' }
 
 const app = new Hono()
@@ -24,13 +25,13 @@ app.get('/api/pools-tokens-and-balances', async (c) => {
     const pools = []
 
     for (let i = 0; i < poolsLength; i++) {
-      const pool = await exchange.pools(i)
-      const tokensAndBalances = await exchange.getPoolTokensAndBalances(pool)
+      const address = await exchange.pools(i)
+      const tokensAndBalances = await exchange.getPoolTokensAndBalances(address)
 
       const { token0, token1, balance0, balance1 } = tokensAndBalances
 
       pools.push({
-        address: pool,
+        address,
         token0,
         token1,
         balance0: balance0.toString(),
@@ -44,6 +45,24 @@ app.get('/api/pools-tokens-and-balances', async (c) => {
   }
 })
 
+app.get('/api/swaps-number', async (c) => {
+  try {
+    let swapsNumber = 0
+    const poolsLength = await exchange.getPoolsLength()
+
+    for (let i = 0; i < poolsLength; i++) {
+      const address = await exchange.pools(i)
+      const pool = new ethers.Contract(address, PiscineV1Pool.abi, provider)
+      const poolEvents = await pool.queryFilter('TokensSwapped')
+
+      swapsNumber += poolEvents.length
+    }
+
+    return c.json(swapsNumber)
+  } catch (error) {
+    console.error(error)
+  }
+})
 serve(
   {
     fetch: app.fetch,
