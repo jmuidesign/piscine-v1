@@ -2,6 +2,7 @@
   "name": "backend",
   "type": "module",
   "scripts": {
+    "anvil": "cd ../protocole && (anvil --fork-url mainnet --fork-block-number 22193947 & until curl -s http://localhost:8545 > /dev/null; do sleep 1; done && forge script script/Anvil.s.sol --rpc-url http://localhost:8545 --broadcast)",
     "dev": "tsx watch src/index.ts"
   },
   "dependencies": {

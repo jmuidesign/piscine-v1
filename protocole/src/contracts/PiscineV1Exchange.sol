@@ -110,4 +110,21 @@ contract PiscineV1Exchange is IPiscineV1Exchange {
 
         emit ForwardFeesWithdrawn(token, amount);
     }
+
+    function getPoolsLength() external view returns (uint256 poolsLength) {
+        return pools.length;
+    }
+
+    function getPoolTokensAndBalances(address poolAddress)
+        external
+        view
+        returns (address token0, address token1, uint256 balance0, uint256 balance1)
+    {
+        return (
+            PiscineV1Pool(poolAddress).token0(),
+            PiscineV1Pool(poolAddress).token1(),
+            PiscineV1Pool(poolAddress).balance0(),
+            PiscineV1Pool(poolAddress).balance1()
+        );
+    }
 }
