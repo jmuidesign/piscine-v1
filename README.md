@@ -51,13 +51,26 @@ The backend service provides:
 - **Frameworks**: Hono
 - **Blockchain Interaction**: ethers.js
 
-## Project Structure
+## Project Structure Overview
 
 ```
 piscine-v1/
-├── backend/         # Backend service implementation
-├── protocole/       # Smart contracts implementation
-└── .gitmodules      # Git submodules configuration
+├── backend/                    # Backend service implementation
+│   ├── src/
+│   │   └── index.ts           # Main backend entry point
+│   ├── node_modules/          # Node.js dependencies
+│   ├── package.json           # Backend dependencies and scripts
+│   └── ...                    # Additional backend files
+│
+└── protocole/                 # Smart contracts implementation
+    ├── script/
+    │   └── Anvil.s.sol       # Deployment script
+    ├── src/
+    │   ├── contracts/        # Main smart contracts
+    │   ├── interfaces/       # Contract interfaces
+    │   └── libraries/        # Utility libraries
+    ├── test/                 # Smart contract tests
+    └── ...                   # Additional protocol files
 ```
 
 ## Smart Contract Architecture
