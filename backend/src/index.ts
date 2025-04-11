@@ -7,7 +7,7 @@ import PiscineV1Pool from '../../protocole/out/PiscineV1Pool.sol/PiscineV1Pool.j
 import lastDeployment from '../../protocole/broadcast/Anvil.s.sol/1/run-latest.json' assert { type: 'json' }
 
 const app = new Hono()
-const provider = new ethers.JsonRpcProvider('http://127.0.0.1:8545/')
+const provider = new ethers.JsonRpcProvider(process.env.RPC_URL)
 
 const exchangeAddress =
   lastDeployment.transactions[lastDeployment.transactions.length - 1]
@@ -19,10 +19,18 @@ const exchange = new ethers.Contract(
   provider
 )
 
-app.get('/api/pools-tokens-and-balances', async (c) => {
+app.get('/api/pools-infos', async (c) => {
+  type PoolInfos = {
+    address: string
+    token0: string
+    token1: string
+    balance0: string
+    balance1: string
+  }
+
   try {
-    const poolsLength = await exchange.getPoolsLength()
-    const pools = []
+    const poolsLength: number = await exchange.getPoolsLength()
+    const poolInfos: PoolInfos[] = []
 
     for (let i = 0; i < poolsLength; i++) {
       const address = await exchange.pools(i)
@@ -30,7 +38,7 @@ app.get('/api/pools-tokens-and-balances', async (c) => {
 
       const { token0, token1, balance0, balance1 } = tokensAndBalances
 
-      pools.push({
+      poolInfos.push({
         address,
         token0,
         token1,
@@ -39,7 +47,7 @@ app.get('/api/pools-tokens-and-balances', async (c) => {
       })
     }
 
-    return c.json(pools)
+    return c.json(poolInfos)
   } catch (error) {
     console.error(error)
   }
@@ -47,8 +55,8 @@ app.get('/api/pools-tokens-and-balances', async (c) => {
 
 app.get('/api/swaps-number', async (c) => {
   try {
+    const poolsLength: number = await exchange.getPoolsLength()
     let swapsNumber = 0
-    const poolsLength = await exchange.getPoolsLength()
 
     for (let i = 0; i < poolsLength; i++) {
       const address = await exchange.pools(i)
@@ -66,7 +74,7 @@ app.get('/api/swaps-number', async (c) => {
 
 app.get('/api/users-addresses', async (c) => {
   try {
-    const poolsLength = await exchange.getPoolsLength()
+    const poolsLength: number = await exchange.getPoolsLength()
     const usersAddresses: string[] = []
 
     for (let i = 0; i < poolsLength; i++) {
@@ -89,7 +97,7 @@ app.get('/api/users-addresses', async (c) => {
 
 app.get('/api/liquidity-providers-addresses', async (c) => {
   try {
-    const poolsLength = await exchange.getPoolsLength()
+    const poolsLength: number = await exchange.getPoolsLength()
     const liquidityProvidersAddresses: string[] = []
 
     for (let i = 0; i < poolsLength; i++) {
