@@ -28,8 +28,8 @@ contract PiscineV1Pool is IPiscineV1Pool, ERC20 {
         if (balance0 == 0 && balance1 == 0) {
             lpTokensToMint = Math.sqrt(amount0 * amount1);
         } else {
-            uint256 poolRatio = balance0 / balance1;
-            uint256 inputRatio = amount0 / amount1;
+            uint256 poolRatio = (balance0 * 10 ** 18) / balance1;
+            uint256 inputRatio = (amount0 * 10 ** 18) / amount1;
             uint256 margin = poolRatio / 100;
 
             if (inputRatio > poolRatio + margin || inputRatio < poolRatio - margin) revert InvalidRatio();
