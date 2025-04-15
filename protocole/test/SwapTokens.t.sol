@@ -48,7 +48,7 @@ contract SwapTokensTest is BaseTest {
         uint256 balanceUsdc = IERC20(usdc).balanceOf(address(this));
         uint256 balanceDai = IERC20(dai).balanceOf(address(this));
 
-        exchange.swapTokens(usdc, dai, amountIn);
+        exchange.swapTokens(usdc, dai, amountIn, amountOut);
 
         uint256 _amountOut = IERC20(dai).balanceOf(address(this)) - balanceDai;
 
@@ -58,9 +58,9 @@ contract SwapTokensTest is BaseTest {
     }
 
     function test_swap_tokens_succeedsWhenPoolExistsAndTokenInIsToken0() public {
-        exchange.swapTokens(tokenIn, tokenOut, amountIn);
-
         _calculateAmountOut();
+
+        exchange.swapTokens(tokenIn, tokenOut, amountIn, amountOut);
 
         assertEq(pool.balance0(), balance0 + amountIn, "balance0 is not correct");
         assertEq(pool.balance1(), balance1 - amountOut, "balance1 is not correct");
@@ -72,9 +72,9 @@ contract SwapTokensTest is BaseTest {
         tokenIn = tokenA;
         tokenOut = tokenB;
 
-        exchange.swapTokens(tokenIn, tokenOut, amountIn);
-
         _calculateAmountOut();
+
+        exchange.swapTokens(tokenIn, tokenOut, amountIn, amountOut);
 
         assertEq(pool.balance0(), balance0 - amountOut, "balance0 is not correct");
         assertEq(pool.balance1(), balance1 + amountIn, "balance1 is not correct");
@@ -83,10 +83,10 @@ contract SwapTokensTest is BaseTest {
     }
 
     function test_swap_tokens_succeedsWhenPoolExistsWithMultipleSwapers() public {
-        vm.startPrank(user1);
-        exchange.swapTokens(tokenIn, tokenOut, amountIn);
-
         _calculateAmountOut();
+
+        vm.startPrank(user1);
+        exchange.swapTokens(tokenIn, tokenOut, amountIn, amountOut);
 
         assertEq(pool.balance0(), balance0 + amountIn, "balance0 is not correct");
         assertEq(pool.balance1(), balance1 - amountOut, "balance1 is not correct");
@@ -97,10 +97,10 @@ contract SwapTokensTest is BaseTest {
         balance0 = pool.balance0();
         balance1 = pool.balance1();
 
-        vm.startPrank(user2);
-        exchange.swapTokens(tokenIn, tokenOut, amountIn);
-
         _calculateAmountOut();
+
+        vm.startPrank(user2);
+        exchange.swapTokens(tokenIn, tokenOut, amountIn, amountOut);
 
         assertEq(pool.balance0(), balance0 + amountIn, "balance0 is not correct");
         assertEq(pool.balance1(), balance1 - amountOut, "balance1 is not correct");
@@ -115,17 +115,17 @@ contract SwapTokensTest is BaseTest {
         vm.expectEmit();
         emit IPiscineV1Pool.TokensSwapped(amountIn, amountOut);
 
-        exchange.swapTokens(tokenIn, tokenOut, amountIn);
+        exchange.swapTokens(tokenIn, tokenOut, amountIn, amountOut);
     }
 
     function test_swap_tokens_failsIfSameToken() public {
         vm.expectRevert(IPiscineV1Exchange.SameToken.selector);
-        exchange.swapTokens(tokenIn, tokenIn, amountIn);
+        exchange.swapTokens(tokenIn, tokenIn, amountIn, amountOut);
     }
 
     function test_swap_tokens_failsIfAddressZero() public {
         vm.expectRevert(IPiscineV1Exchange.AddressZero.selector);
-        exchange.swapTokens(address(0), tokenOut, amountIn);
+        exchange.swapTokens(address(0), tokenOut, amountIn, amountOut);
     }
 
     function test_fuzz_swapTokens(uint256 _amountIn) public {
@@ -140,9 +140,9 @@ contract SwapTokensTest is BaseTest {
         balanceA = tokenAMock.balanceOf(address(this));
         balanceB = tokenBMock.balanceOf(address(this));
 
-        exchange.swapTokens(tokenIn, tokenOut, _amountIn);
-
         _calculateAmountOut();
+
+        exchange.swapTokens(tokenIn, tokenOut, _amountIn, amountOut);
 
         assertEq(pool.balance0(), balance0 + _amountIn, "balance0 is not correct");
         assertEq(pool.balance1(), balance1 - amountOut, "balance1 is not correct");

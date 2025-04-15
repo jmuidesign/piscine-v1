@@ -15,6 +15,6 @@ interface IPiscineV1Exchange {
     function createPool(address tokenA, address tokenB) external;
     function addLiquidity(address tokenA, address tokenB, uint256 amountA, uint256 amountB) external;
     function removeLiquidity(address tokenA, address tokenB, uint256 lpTokensAmount) external;
-    function swapTokens(address tokenIn, address tokenOut, uint256 amountIn) external;
+    function swapTokens(address tokenIn, address tokenOut, uint256 amountIn, uint256 minAmountOut) external;
     function withdrawForwardFees(address token, uint256 amount) external;
 }

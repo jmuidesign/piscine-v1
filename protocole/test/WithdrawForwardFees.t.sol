@@ -31,7 +31,7 @@ contract WithdrawForwardFeesTest is BaseTest {
         deal(usdc, address(this), amountIn);
         IERC20(usdc).approve(address(exchange), amountIn);
 
-        exchange.swapTokens(usdc, dai, amountIn);
+        exchange.swapTokens(usdc, dai, amountIn, 1);
 
         balanceUsdc = IERC20(usdc).balanceOf(address(this));
     }
