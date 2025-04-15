@@ -7,8 +7,11 @@ import {IPiscineV1Exchange} from "../interfaces/IPiscineV1Exchange.sol";
 import {IUniswapV2Router02} from "../interfaces/IUniswapV2Router02.sol";
 import {IUniswapV2Factory} from "../interfaces/IUniswapV2Factory.sol";
 import {IERC20} from "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+import {SafeERC20} from "openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract PiscineV1Exchange is IPiscineV1Exchange {
+    using SafeERC20 for IERC20;
+
     address public constant UniswapV2Router = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
     address public immutable owner;
     address[] public pools;
@@ -55,11 +58,11 @@ contract PiscineV1Exchange is IPiscineV1Exchange {
 
         if (token0ToToken1ToPool[token0][token1] == address(0)) createPool(tokenA, tokenB);
 
-        IERC20(token0).transferFrom(msg.sender, address(this), amount0);
-        IERC20(token1).transferFrom(msg.sender, address(this), amount1);
+        IERC20(token0).safeTransferFrom(msg.sender, address(this), amount0);
+        IERC20(token1).safeTransferFrom(msg.sender, address(this), amount1);
 
-        IERC20(token0).approve(computedPoolAddress, amount0);
-        IERC20(token1).approve(computedPoolAddress, amount1);
+        IERC20(token0).safeIncreaseAllowance(computedPoolAddress, amount0);
+        IERC20(token1).safeIncreaseAllowance(computedPoolAddress, amount1);
 
         PiscineV1Pool(computedPoolAddress).addLiquidity(amount0, amount1, msg.sender);
     }
@@ -75,13 +78,13 @@ contract PiscineV1Exchange is IPiscineV1Exchange {
         PiscineV1Pool(computedPoolAddress).removeLiquidity(lpTokensAmount, msg.sender);
     }
 
-    function swapTokens(address tokenIn, address tokenOut, uint256 amountIn) external {
+    function swapTokens(address tokenIn, address tokenOut, uint256 amountIn, uint256 minAmountOut) external {
         _checkAddresses(tokenIn, tokenOut);
 
         (address token0, address token1) = PiscineV1Library._sortTokens(tokenIn, tokenOut);
         address computedPoolAddress = PiscineV1Library._getPoolAddress(tokenIn, tokenOut, address(this));
 
-        IERC20(tokenIn).transferFrom(msg.sender, address(this), amountIn);
+        IERC20(tokenIn).safeTransferFrom(msg.sender, address(this), amountIn);
 
         if (token0ToToken1ToPool[token0][token1] == address(0)) {
             IUniswapV2Router02 router = IUniswapV2Router02(UniswapV2Router);
@@ -92,21 +95,23 @@ contract PiscineV1Exchange is IPiscineV1Exchange {
 
             uint256 amountInWithFee = (amountIn * 999) / 1000;
 
-            IERC20(tokenIn).approve(address(router), amountInWithFee);
+            IERC20(tokenIn).safeIncreaseAllowance(address(router), amountInWithFee);
 
             tokenToForwardFees[tokenIn] += (amountIn - amountInWithFee);
 
-            router.swapExactTokensForTokens(amountInWithFee, 0, path, msg.sender, block.timestamp + 5 minutes)[1];
+            router.swapExactTokensForTokens(
+                amountInWithFee, minAmountOut, path, msg.sender, block.timestamp + 5 minutes
+            )[1];
         } else {
-            IERC20(tokenIn).approve(computedPoolAddress, amountIn);
+            IERC20(tokenIn).safeIncreaseAllowance(computedPoolAddress, amountIn);
 
-            PiscineV1Pool(computedPoolAddress).swapTokens(tokenIn, amountIn, msg.sender);
+            PiscineV1Pool(computedPoolAddress).swapTokens(tokenIn, amountIn, minAmountOut, msg.sender);
         }
     }
 
     function withdrawForwardFees(address token, uint256 amount) external onlyOwner {
         tokenToForwardFees[token] -= amount;
-        IERC20(token).transfer(owner, amount);
+        IERC20(token).safeTransfer(owner, amount);
 
         emit ForwardFeesWithdrawn(token, amount);
     }

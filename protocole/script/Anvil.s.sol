@@ -30,9 +30,9 @@ contract Anvil is Script, StdCheats {
     }
 
     function _doSomeSwaps() internal {
-        exchange.swapTokens(address(tokenAMock), address(tokenBMock), 2_000_000);
-        exchange.swapTokens(address(tokenAMock), address(tokenCMock), 5_000_000);
-        exchange.swapTokens(address(tokenBMock), address(tokenCMock), 10_000_000);
+        exchange.swapTokens(address(tokenAMock), address(tokenBMock), 2_000_000, 1);
+        exchange.swapTokens(address(tokenAMock), address(tokenCMock), 5_000_000, 1);
+        exchange.swapTokens(address(tokenBMock), address(tokenCMock), 10_000_000, 1);
     }
 
     function run() public {
