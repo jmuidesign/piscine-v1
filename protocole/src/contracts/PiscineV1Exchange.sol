@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.28;
+pragma solidity ^0.8.29;
 
 import {PiscineV1Pool} from "./PiscineV1Pool.sol";
 import {PiscineV1Library} from "../librairies/PiscineV1Library.sol";

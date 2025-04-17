@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.28;
+pragma solidity ^0.8.29;
 
 import {PiscineV1Pool} from "../contracts/PiscineV1Pool.sol";
 import {Create2} from "openzeppelin-contracts/contracts/utils/Create2.sol";

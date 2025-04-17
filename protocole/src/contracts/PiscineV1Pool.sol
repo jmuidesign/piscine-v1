@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.28;
+pragma solidity ^0.8.29;
 
 import {IPiscineV1Pool} from "../interfaces/IPiscineV1Pool.sol";
 import {ERC20} from "openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
@@ -27,18 +27,21 @@ contract PiscineV1Pool is IPiscineV1Pool, ERC20 {
         IERC20(token0).safeTransferFrom(msg.sender, address(this), amount0);
         IERC20(token1).safeTransferFrom(msg.sender, address(this), amount1);
 
+        uint256 _balance0 = balance0;
+        uint256 _balance1 = balance1;
+
         uint256 lpTokensToMint;
 
-        if (balance0 == 0 && balance1 == 0) {
+        if (_balance0 == 0) {
             lpTokensToMint = Math.sqrt(amount0 * amount1);
         } else {
-            uint256 poolRatio = (balance0 * 10 ** 18) / balance1;
+            uint256 poolRatio = (_balance0 * 10 ** 18) / _balance1;
             uint256 inputRatio = (amount0 * 10 ** 18) / amount1;
             uint256 margin = poolRatio / 100;
 
             if (inputRatio > poolRatio + margin || inputRatio < poolRatio - margin) revert InvalidRatio();
 
-            lpTokensToMint = Math.min(amount0 * totalSupply() / balance0, amount1 * totalSupply() / balance1);
+            lpTokensToMint = Math.min(amount0 * totalSupply() / _balance0, amount1 * totalSupply() / _balance1);
         }
 
         _mint(liquidityProvider, lpTokensToMint);
@@ -65,31 +68,36 @@ contract PiscineV1Pool is IPiscineV1Pool, ERC20 {
     }
 
     function swapTokens(address tokenIn, uint256 amountIn, uint256 minAmountOut, address swapper) external {
+        address _token0 = token0;
+        address _token1 = token1;
+        uint256 _balance0 = balance0;
+        uint256 _balance1 = balance1;
+
         uint256 amountInWithFee = (amountIn * 997) / 1000;
         uint256 amountOut;
 
-        if (tokenIn == token0) {
-            IERC20(token0).safeTransferFrom(msg.sender, address(this), amountIn);
+        if (tokenIn == _token0) {
+            IERC20(_token0).safeTransferFrom(msg.sender, address(this), amountIn);
 
-            amountOut = (balance1 * amountInWithFee) / (balance0 + amountInWithFee);
+            amountOut = (_balance1 * amountInWithFee) / (_balance0 + amountInWithFee);
 
             if (amountOut < minAmountOut) revert InsufficientOutputAmount();
 
             balance0 += amountIn;
             balance1 -= amountOut;
 
-            IERC20(token1).safeTransfer(swapper, amountOut);
+            IERC20(_token1).safeTransfer(swapper, amountOut);
         } else {
-            IERC20(token1).safeTransferFrom(msg.sender, address(this), amountIn);
+            IERC20(_token1).safeTransferFrom(msg.sender, address(this), amountIn);
 
-            amountOut = (balance0 * amountInWithFee) / (balance1 + amountInWithFee);
+            amountOut = (_balance0 * amountInWithFee) / (_balance1 + amountInWithFee);
 
             if (amountOut < minAmountOut) revert InsufficientOutputAmount();
 
             balance1 += amountIn;
             balance0 -= amountOut;
 
-            IERC20(token0).safeTransfer(swapper, amountOut);
+            IERC20(_token0).safeTransfer(swapper, amountOut);
         }
 
         emit TokensSwapped(amountIn, amountOut);
