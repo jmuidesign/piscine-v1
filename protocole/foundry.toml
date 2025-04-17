@@ -2,7 +2,10 @@
 src = "src"
 out = "out"
 libs = ["lib"]
-solc = "0.8.28"
+solc = "0.8.29"
+optimizer = true
+optimizer_runs = 999999
+via_ir = false
 
 [rpc_endpoints]
 mainnet = "${MAINNET_URL}"
