@@ -41,7 +41,7 @@ contract Anvil is Script, StdCheats {
 
         vm.startBroadcast(wallet1.privateKey);
 
-        exchange = new PiscineV1Exchange();
+        exchange = new PiscineV1Exchange(vm.envAddress("UNISWAP_V2_ROUTER"));
 
         tokenAMock = new ERC20Mock();
         tokenBMock = new ERC20Mock();

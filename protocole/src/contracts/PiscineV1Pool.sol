@@ -21,14 +21,12 @@ contract PiscineV1Pool is IPiscineV1Pool, ERC20 {
         token1 = _token1;
     }
 
-    function addLiquidity(uint256 amount0, uint256 amount1, address liquidityProvider) external {
-        if (amount0 == 0 || amount1 == 0) revert AmountZero();
-
-        IERC20(token0).safeTransferFrom(msg.sender, address(this), amount0);
-        IERC20(token1).safeTransferFrom(msg.sender, address(this), amount1);
-
+    function addLiquidity(address liquidityProvider) external {
         uint256 _balance0 = balance0;
         uint256 _balance1 = balance1;
+
+        uint256 amount0 = IERC20(token0).balanceOf(address(this)) - _balance0;
+        uint256 amount1 = IERC20(token1).balanceOf(address(this)) - _balance1;
 
         uint256 lpTokensToMint;
 
@@ -49,7 +47,7 @@ contract PiscineV1Pool is IPiscineV1Pool, ERC20 {
         balance0 += amount0;
         balance1 += amount1;
 
-        emit LiquidityAdded(amount0, amount1, lpTokensToMint);
+        emit LiquidityAdded(liquidityProvider, amount0, amount1, lpTokensToMint);
     }
 
     function removeLiquidity(uint256 lpTokensAmount, address liquidityRemover) external {
@@ -64,42 +62,29 @@ contract PiscineV1Pool is IPiscineV1Pool, ERC20 {
         IERC20(token0).safeTransfer(liquidityRemover, amount0);
         IERC20(token1).safeTransfer(liquidityRemover, amount1);
 
-        emit LiquidityRemoved(amount0, amount1, lpTokensAmount);
+        emit LiquidityRemoved(liquidityRemover, amount0, amount1, lpTokensAmount);
     }
 
-    function swapTokens(address tokenIn, uint256 amountIn, uint256 minAmountOut, address swapper) external {
-        address _token0 = token0;
-        address _token1 = token1;
-        uint256 _balance0 = balance0;
-        uint256 _balance1 = balance1;
+    function swapTokens(address tokenIn, uint256 minAmountOut, address swapper) external {
+        (address tokenOut, uint256 balanceIn, uint256 balanceOut) =
+            tokenIn == token0 ? (token1, balance0, balance1) : (token0, balance1, balance0);
 
+        uint256 amountIn = IERC20(tokenIn).balanceOf(address(this)) - balanceIn;
         uint256 amountInWithFee = (amountIn * 997) / 1000;
-        uint256 amountOut;
+        uint256 amountOut = (balanceOut * amountInWithFee) / (balanceIn + amountInWithFee);
 
-        if (tokenIn == _token0) {
-            IERC20(_token0).safeTransferFrom(msg.sender, address(this), amountIn);
+        if (amountOut < minAmountOut) revert InsufficientOutputAmount();
 
-            amountOut = (_balance1 * amountInWithFee) / (_balance0 + amountInWithFee);
-
-            if (amountOut < minAmountOut) revert InsufficientOutputAmount();
-
+        if (tokenIn == token0) {
             balance0 += amountIn;
             balance1 -= amountOut;
-
-            IERC20(_token1).safeTransfer(swapper, amountOut);
         } else {
-            IERC20(_token1).safeTransferFrom(msg.sender, address(this), amountIn);
-
-            amountOut = (_balance0 * amountInWithFee) / (_balance1 + amountInWithFee);
-
-            if (amountOut < minAmountOut) revert InsufficientOutputAmount();
-
             balance1 += amountIn;
             balance0 -= amountOut;
-
-            IERC20(_token0).safeTransfer(swapper, amountOut);
         }
 
-        emit TokensSwapped(amountIn, amountOut);
+        IERC20(tokenOut).safeTransfer(swapper, amountOut);
+
+        emit TokensSwapped(swapper, amountIn, amountOut);
     }
 }

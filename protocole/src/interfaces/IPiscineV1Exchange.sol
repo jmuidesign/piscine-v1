@@ -2,8 +2,8 @@
 pragma solidity ^0.8.29;
 
 interface IPiscineV1Exchange {
-    event PoolCreated(address pool, address token0, address token1);
-    event ForwardFeesWithdrawn(address token, uint256 amount);
+    event PoolCreated(address indexed pool, address token0, address token1);
+    event ForwardFeesWithdrawn(address indexed token, uint256 amount);
 
     error OnlyOwner();
     error SameToken();

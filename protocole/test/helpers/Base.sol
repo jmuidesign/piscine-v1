@@ -52,7 +52,7 @@ abstract contract BaseTest is Test {
 
         (token0, token1, amount0, amount1) = PiscineV1Library._sortTokensAndAmounts(tokenA, tokenB, amountA, amountB);
 
-        exchange = new PiscineV1Exchange();
+        exchange = new PiscineV1Exchange(vm.envAddress("UNISWAP_V2_ROUTER"));
         computedPoolAddress = PiscineV1Library._getPoolAddress(tokenA, tokenB, address(exchange));
         pool = PiscineV1Pool(computedPoolAddress);
 

@@ -16,7 +16,7 @@ contract CreatePoolTest is Test {
     address public tokenD = makeAddr("tokenD");
 
     function setUp() public {
-        exchange = new PiscineV1Exchange();
+        exchange = new PiscineV1Exchange(vm.envAddress("UNISWAP_V2_ROUTER"));
     }
 
     function test_createPool_succeeds() public {
