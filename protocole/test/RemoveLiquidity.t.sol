@@ -102,7 +102,7 @@ contract RemoveLiquidityTest is BaseTest {
         uint256 _amount1 = balance1 * lpTokensAmount / pool.totalSupply();
 
         vm.expectEmit();
-        emit IPiscineV1Pool.LiquidityRemoved(_amount0, _amount1, lpTokensAmount);
+        emit IPiscineV1Pool.LiquidityRemoved(address(this), _amount0, _amount1, lpTokensAmount);
 
         exchange.removeLiquidity(tokenA, tokenB, lpTokensAmount);
     }

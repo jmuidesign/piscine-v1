@@ -8,7 +8,7 @@ contract ExchangeInitializationTest is Test {
     PiscineV1Exchange public exchange;
 
     function setUp() public {
-        exchange = new PiscineV1Exchange();
+        exchange = new PiscineV1Exchange(vm.envAddress("UNISWAP_V2_ROUTER"));
     }
 
     function test_initialization_succeeds() public view {

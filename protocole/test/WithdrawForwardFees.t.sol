@@ -20,7 +20,7 @@ contract WithdrawForwardFeesTest is BaseTest {
         string memory rpcUrl = vm.rpcUrl("mainnet");
         vm.createSelectFork(rpcUrl, 22193947);
 
-        exchange = new PiscineV1Exchange();
+        exchange = new PiscineV1Exchange(vm.envAddress("UNISWAP_V2_ROUTER"));
 
         usdc = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
         dai = 0x6B175474E89094C44Da98b954EedeAC495271d0F;

@@ -82,7 +82,7 @@ contract AddLiquidityTest is BaseTest {
         uint256 expectedLPTokensToMint = Math.sqrt(amount0 * amount1);
 
         vm.expectEmit();
-        emit IPiscineV1Pool.LiquidityAdded(amount0, amount1, expectedLPTokensToMint);
+        emit IPiscineV1Pool.LiquidityAdded(address(this), amount0, amount1, expectedLPTokensToMint);
 
         exchange.addLiquidity(tokenA, tokenB, amountA, amountB);
     }
