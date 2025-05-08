@@ -49,7 +49,7 @@ app.get('/api/pools-infos', async (c) => {
 
     return c.json(poolInfos)
   } catch (error) {
-    console.error(error)
+    return c.json({ error: error }, 500)
   }
 })
 
@@ -68,7 +68,7 @@ app.get('/api/swaps-number', async (c) => {
 
     return c.json(swapsNumber)
   } catch (error) {
-    console.error(error)
+    return c.json({ error: error }, 500)
   }
 })
 
@@ -83,15 +83,16 @@ app.get('/api/users-addresses', async (c) => {
       const poolEvents = await pool.queryFilter('TokensSwapped')
 
       for (const event of poolEvents) {
-        const tx = await event.getTransaction()
+        const typedEvent = event as ethers.EventLog
+        const swapper = typedEvent.args.swapper
 
-        if (!usersAddresses.includes(tx.from)) usersAddresses.push(tx.from)
+        if (!usersAddresses.includes(swapper)) usersAddresses.push(swapper)
       }
-    }
 
-    return c.json(usersAddresses)
+      return c.json(usersAddresses)
+    }
   } catch (error) {
-    console.error(error)
+    return c.json({ error: error }, 500)
   }
 })
 
@@ -106,16 +107,17 @@ app.get('/api/liquidity-providers-addresses', async (c) => {
       const poolEvents = await pool.queryFilter('LiquidityAdded')
 
       for (const event of poolEvents) {
-        const tx = await event.getTransaction()
+        const typedEvent = event as ethers.EventLog
+        const liquidityProvider = typedEvent.args.liquidityProvider
 
-        if (!liquidityProvidersAddresses.includes(tx.from))
-          liquidityProvidersAddresses.push(tx.from)
+        if (!liquidityProvidersAddresses.includes(liquidityProvider))
+          liquidityProvidersAddresses.push(liquidityProvider)
       }
     }
 
     return c.json(liquidityProvidersAddresses)
   } catch (error) {
-    console.error(error)
+    return c.json({ error: error }, 500)
   }
 })
 
