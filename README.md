@@ -36,41 +36,28 @@ The backend service provides:
 - Protocol user address listing
 - Liquidity provider address listing
 
-## Technology Stack
-
-### Protocol
-
-- **Framework**: Foundry
-- **Language**: Solidity
-- **Libraries**: OpenZeppelin
-
-### Backend
-
-- **Runtime**: Node.js
-- **Language**: TypeScript
-- **Frameworks**: Hono
-- **Blockchain Interaction**: ethers.js
-
 ## Project Structure Overview
 
 ```
 piscine-v1/
-├── backend/                    # Backend service implementation
+├── backend/                    
 │   ├── src/
-│   │   └── index.ts           # Main backend entry point
-│   ├── node_modules/          # Node.js dependencies
-│   ├── package.json           # Backend dependencies and scripts
-│   └── ...                    # Additional backend files
+│   │   └── index.ts           
+│   ├── node_modules/         
+│   ├── package.json           
+│   └── ...                    
 │
-└── protocole/                 # Smart contracts implementation
-    ├── script/
-    │   └── Anvil.s.sol       # Deployment script
+└── protocole/                 
+    ├── script/     
     ├── src/
-    │   ├── contracts/        # Main smart contracts
-    │   ├── interfaces/       # Contract interfaces
-    │   └── libraries/        # Utility libraries
-    ├── test/                 # Smart contract tests
-    └── ...                   # Additional protocol files
+    │   ├── contracts/
+    │   │   └── PiscineV1Exchange.sol
+    │   │   └── PiscineV1Pool.sol          
+    │   ├── interfaces/       
+    │   └── libraries/       
+    ├── test/
+    │   └── CreatePool.t.sol              
+    └── ...                 
 ```
 
 ## Smart Contract Architecture
@@ -98,3 +85,18 @@ The protocol is built around two main contracts:
 - Tokens are sorted in ascending order
 
 This ensures that each token pair can only have one unique pool address
+
+## Technology Stack
+
+### Protocol
+
+- **Framework**: Foundry
+- **Language**: Solidity
+- **Libraries**: OpenZeppelin
+
+### Backend
+
+- **Runtime**: Node.js
+- **Language**: TypeScript
+- **Frameworks**: Hono
+- **Blockchain Interaction**: ethers.js
