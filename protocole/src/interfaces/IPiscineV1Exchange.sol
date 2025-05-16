@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.29;
+pragma solidity ^0.8.0;
 
 interface IPiscineV1Exchange {
     event PoolCreated(address indexed pool, address token0, address token1);
